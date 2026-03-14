@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Home page — highest priority, changes infrequently -->
+  <!-- Home page -->
   <url>
     <loc>https://thebitcoingame.io/</loc>
     <lastmod>2026-03-14</lastmod>
@@ -9,12 +9,20 @@
     <priority>1.0</priority>
   </url>
 
+  <!-- Landing / about page — primary SEO target -->
+  <url>
+    <loc>https://thebitcoingame.io/about.html</loc>
+    <lastmod>2026-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <!-- Satoshi (moderator) view -->
   <url>
     <loc>https://thebitcoingame.io/BTCsatoshi.html</loc>
     <lastmod>2026-03-14</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
 
   <!-- Miner (student) view -->
@@ -22,7 +30,7 @@
     <loc>https://thebitcoingame.io/BTCminer.html</loc>
     <lastmod>2026-03-14</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
 
 </urlset>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Bitcoin Game — Free Blockchain & Bitcoin Classroom Simulation for Educators</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>₿</text></svg>">
+
+  <!-- ── SEO: Meta tags ──────────────────────────────────────── -->
+  <meta name="description" content="The Bitcoin Game is a free, browser-based classroom simulation that teaches Bitcoin mining, Proof of Work, and blockchain through competitive gameplay. No installation. Used in universities and high schools worldwide.">
+  <meta name="keywords" content="bitcoin classroom game, blockchain teaching tool, proof of work simulation, bitcoin mining activity, cryptocurrency education, blockchain course activity, fintech classroom game, bitcoin game for students, free blockchain simulation, teach bitcoin, blockchain professor tool, proof of work exercise">
+  <meta name="author" content="Guillermo A. Beuchat">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://thebitcoingame.io/about.html">
+
+  <!-- ── SEO: Open Graph ─────────────────────────────────────── -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://thebitcoingame.io/about.html">
+  <meta property="og:title" content="The Bitcoin Game — Free Blockchain Classroom Simulation">
+  <meta property="og:description" content="Teach Bitcoin mining and Proof of Work through competitive hands-on gameplay. Free, browser-based, no installation. Trusted by educators worldwide.">
+  <meta property="og:image" content="https://thebitcoingame.io/BTCbackground.jpg">
+  <meta property="og:site_name" content="The Bitcoin Game">
+  <meta property="og:locale" content="en_US">
+
+  <!-- ── SEO: Twitter card ───────────────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Bitcoin Game — Free Blockchain Classroom Simulation">
+  <meta name="twitter:description" content="Teach Bitcoin mining and Proof of Work through competitive hands-on gameplay. Free, browser-based, no installation.">
+  <meta name="twitter:image" content="https://thebitcoingame.io/BTCbackground.jpg">
+
+  <!-- ── SEO: JSON-LD Structured Data ────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "EducationalApplication",
+        "name": "The Bitcoin Game",
+        "alternateName": "Bitcoin Mining Classroom Simulation",
+        "description": "A free interactive classroom simulation of Bitcoin mining, blockchain technology, and the Proof of Work consensus mechanism. Students compete as miners to earn BTC by finding valid hashes, selecting transactions, and reaching consensus. Designed for university and high school blockchain courses.",
+        "url": "https://thebitcoingame.io/",
+        "applicationCategory": "EducationalApplication",
+        "applicationSubCategory": "Blockchain Education, Fintech, Cryptocurrency",
+        "educationalLevel": ["University", "High School", "Professional Development"],
+        "teaches": [
+          "Bitcoin mining",
+          "Blockchain technology",
+          "Proof of Work consensus mechanism",
+          "Cryptocurrency transaction fees",
+          "Hash functions and cryptography",
+          "Consensus mechanisms",
+          "Miner incentive structures",
+          "Blockchain immutability",
+          "51% attack concepts",
+          "Decentralised finance fundamentals"
+        ],
+        "isAccessibleForFree": true,
+        "inLanguage": "en",
+        "operatingSystem": "Any — runs in any modern web browser, no installation required",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "featureList": [
+          "Real-time competitive mining simulation",
+          "Proof of Work hash calculator",
+          "Transaction pool with fee strategy",
+          "Consensus validation mechanism",
+          "Up to 20 simultaneous players",
+          "Adjustable mining difficulty",
+          "Persistent game state across sessions",
+          "Mobile responsive miner interface",
+          "Moderator dashboard for educators"
+        ],
+        "author": {
+          "@type": "Person",
+          "name": "Guillermo A. Beuchat",
+          "url": "https://www.linkedin.com/in/guillebeuchat/",
+          "jobTitle": "University Professor, Business Consultant, Blockchain Enthusiast"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is The Bitcoin Game?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Bitcoin Game is a free, browser-based classroom simulation that teaches Bitcoin mining, Proof of Work, and blockchain technology through competitive gameplay. Students act as miners, competing to find valid hashes, select profitable transactions, and reach consensus — mirroring exactly how the real Bitcoin network operates."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who is The Bitcoin Game designed for?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The game is designed for educators — university professors, high school teachers, corporate trainers, and bootcamp instructors — who want to teach blockchain concepts through active learning rather than passive lectures. It works with groups of 2 to 20 students."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does The Bitcoin Game teach?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Students learn Bitcoin mining through hands-on experience: how Proof of Work functions, what a hash is and why it matters, how miners select transactions based on fees, how the consensus mechanism validates blocks, how the blockchain links blocks through cryptographic hashes, and how miner incentive structures drive network security."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does The Bitcoin Game cost?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Bitcoin Game is completely free. There is no registration, no subscription, no installation, and no paid features. It runs entirely in the browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does The Bitcoin Game require any installation or account?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The game runs entirely in any modern web browser. Students open the Miner View on their own device and the educator opens the Satoshi (moderator) View on the projected screen. No accounts, no downloads, no app stores."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does a session of The Bitcoin Game take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A typical session runs 60 to 90 minutes for a full 10-block game, making it ideal for a single university lecture or high school class period. Educators can also run shorter sessions of 3 to 5 blocks, approximately 30 to 45 minutes."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can The Bitcoin Game be used for remote or online classes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The educator shares their Satoshi View screen via Zoom, Teams, or any video conferencing tool. Students open the Miner View on their own devices. The game works identically in remote and in-person settings."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Design tokens ─────────────────────────────────────── */
+    :root {
+      --bg-deep:        #111111;
+      --bg-surface:     #181818;
+      --bg-raised:      #202020;
+      --border-subtle:  #2a2a2a;
+      --border-strong:  #404040;
+      --text-primary:   #f0f0f0;
+      --text-secondary: #999999;
+      --text-muted:     #555555;
+      --gold:           #F7931A;
+      --gold-dim:       rgba(247,147,26,0.15);
+      --gold-glow:      rgba(247,147,26,0.35);
+      --green:          #22c55e;
+      --green-dim:      rgba(34,197,94,0.10);
+      --font-ui:        'Inter', Arial, sans-serif;
+      --font-mono:      'JetBrains Mono', monospace;
+      --radius:         12px;
+      --radius-sm:      8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: url('BTCbackground.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body > * { position: relative; z-index: 1; }
+
+    /* ── Nav ───────────────────────────────────────────────── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(10,10,10,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-cta {
+      padding: 8px 20px;
+      background: transparent;
+      color: var(--gold) !important;
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.85rem !important;
+      transition: background 0.15s, box-shadow 0.15s !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold-dim) !important;
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    /* ── Page wrapper ──────────────────────────────────────── */
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(247,147,26,0.3);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .hero h1 span { color: var(--gold); }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .btn-gold {
+      padding: 12px 32px;
+      background: var(--gold);
+      color: #111;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-gold:hover {
+      opacity: 0.9;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .btn-outline {
+      padding: 12px 32px;
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-raised);
+      border-color: var(--border-strong);
+    }
+
+    /* ── Stat strip ────────────────────────────────────────── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .stat {
+      background: var(--bg-surface);
+      padding: 24px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Section ───────────────────────────────────────────── */
+    section { display: flex; flex-direction: column; gap: 20px; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .section-body {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-body strong { color: var(--text-primary); }
+
+    /* ── Card grid ─────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .card-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-icon { font-size: 1.4rem; line-height: 1; }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .card-body {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ── Objectives list ───────────────────────────────────── */
+    .objectives {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .objectives li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .objectives li::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .objectives li strong { color: var(--text-primary); }
+
+    /* ── How it works steps ────────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 20px;
+      bottom: 20px;
+      width: 2px;
+      background: var(--border-subtle);
+    }
+
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 14px 0;
+      position: relative;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      font-family: var(--font-mono);
+    }
+
+    .step-content { flex: 1; padding-top: 8px; }
+
+    .step-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* ── FAQ ───────────────────────────────────────────────── */
+    .faq { display: flex; flex-direction: column; gap: 8px; }
+
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .faq-item summary:hover { background: var(--bg-raised); }
+
+    .faq-item summary::after {
+      content: "+";
+      color: var(--gold);
+      font-size: 1.1rem;
+      font-weight: 400;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+
+    .faq-answer {
+      padding: 0 18px 16px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 14px;
+    }
+
+    /* ── Author card ───────────────────────────────────────── */
+    .author-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .author-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    .author-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .author-title {
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .author-bio {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .author-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .author-link:hover { text-decoration: underline; }
+
+    /* ── CTA banner ────────────────────────────────────────── */
+    .cta-banner {
+      background: var(--gold-dim);
+      border: 1.5px solid rgba(247,147,26,0.4);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cta-banner h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .cta-banner p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text-secondary); }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .nav { padding: 14px 20px; }
+      .page { padding: 40px 16px 60px; gap: 40px; }
+      .hero h1 { font-size: 1.8rem; }
+      .stat-strip { grid-template-columns: repeat(2, 1fr); }
+      .card-grid { grid-template-columns: 1fr; }
+      .card-grid-3 { grid-template-columns: 1fr; }
+      .author-card { flex-direction: column; }
+      .cta-banner { padding: 28px 20px; }
+      .nav-links { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ───────────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">— THE <span>₿</span>ITCOIN GAME —</a>
+    <div class="nav-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#learning">Learning outcomes</a>
+      <a href="#faq">FAQ</a>
+      <a href="index.html" class="nav-cta">Play now →</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- ── Hero ──────────────────────────────────────────────── -->
+    <div class="hero">
+      <div class="hero-badge">🎓 Free Educational Tool</div>
+      <h1>Teach <span>Bitcoin Mining</span><br>Through Gameplay</h1>
+      <p class="hero-sub">The Bitcoin Game is a free, browser-based classroom simulation that makes blockchain concepts tangible. Students compete as miners — guessing nonces, selecting transactions, and reaching consensus — exactly as the real Bitcoin network operates.</p>
+      <div class="hero-actions">
+        <a href="index.html" class="btn-gold">▶ Launch the game</a>
+        <a href="#how-it-works" class="btn-outline">How it works</a>
+      </div>
+    </div>
+
+    <!-- ── Stats ─────────────────────────────────────────────── -->
+    <div class="stat-strip">
+      <div class="stat">
+        <div class="stat-value">Free</div>
+        <div class="stat-label">Always, forever</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">20</div>
+        <div class="stat-label">Players per session</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Minutes to set up</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">Any</div>
+        <div class="stat-label">Browser, no install</div>
+      </div>
+    </div>
+
+    <!-- ── What is it ─────────────────────────────────────────── -->
+    <section id="what">
+      <div class="section-label">About the tool</div>
+      <h2 class="section-title">A simulation that makes Proof of Work feel real</h2>
+      <div class="section-body">
+        <p>Most blockchain courses teach Proof of Work through slides and diagrams. Students understand it intellectually but never feel it. <strong>The Bitcoin Game changes that.</strong></p>
+        <p>In a typical session, 5 to 20 students become Bitcoin miners. They receive an open transaction pool on a shared screen, choose which transactions to include in their block, and race to find a nonce — a random string that makes their computed hash meet a specific difficulty condition. The first miner to succeed shouts <strong>"BITCOIN!"</strong> and the class validates the block together.</p>
+        <p>The experience is designed to make three things viscerally clear: why mining requires computational effort, why miners prioritise high-fee transactions, and why consensus works without any central authority. These are the insights that survive long after the class ends.</p>
+      </div>
+    </section>
+
+    <!-- ── How it works ───────────────────────────────────────── -->
+    <section id="how-it-works">
+      <div class="section-label">Session flow</div>
+      <h2 class="section-title">How a session works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Educator opens the Satoshi View</div>
+            <div class="step-desc">The moderator opens the Satoshi View on their browser and projects it on a shared screen. They set the number of miners, block reward, maximum block size, and mining difficulty — then click Initialize.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Students open the Miner View</div>
+            <div class="step-desc">Each student opens the Miner View on their own device — laptop, tablet, or phone. No account creation, no download. They enter their assigned Miner ID and they are ready.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">The block opens — mining begins</div>
+            <div class="step-desc">The educator clicks "Open New Block." After a 3-second countdown, 10 random transactions appear in the shared pool. Students immediately begin choosing transactions and guessing nonces in their Hash Calculator, racing to find a valid hash.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">A miner shouts "BITCOIN!"</div>
+            <div class="step-desc">The first student to find a hash meeting the difficulty condition shouts "BITCOIN!" — a genuinely exciting classroom moment. All other miners stop immediately.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <div class="step-title">Consensus — the class validates the block</div>
+            <div class="step-desc">The winning miner announces their nonce and selected transactions. Every other miner independently reproduces the hash using the same inputs. If everyone agrees and all conditions are met, the block is valid. The class has just reached distributed consensus — without trusting anyone.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">06</div>
+          <div class="step-content">
+            <div class="step-title">Repeat for up to 10 blocks</div>
+            <div class="step-desc">The educator closes the block, balances update, and a new block opens. The game runs for up to 10 blocks. The miner with the highest BTC balance at the end wins.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Learning outcomes ──────────────────────────────────── -->
+    <section id="learning">
+      <div class="section-label">Pedagogy</div>
+      <h2 class="section-title">What students learn</h2>
+      <div class="section-body">
+        <p>The Bitcoin Game is designed around experiential learning. Students do not just observe — they make decisions, feel competitive pressure, and discover blockchain principles through direct experience.</p>
+      </div>
+      <ul class="objectives">
+        <li><strong>Proof of Work:</strong> students physically experience the trial-and-error nature of mining — the randomness, the effort, and the luck involved.</li>
+        <li><strong>Hash functions:</strong> every nonce change produces a completely different hash, making the unpredictability of cryptographic functions intuitively clear.</li>
+        <li><strong>Miner incentives:</strong> choosing transactions by fee teaches exactly why real miners prioritise high-fee transactions and how the fee market functions.</li>
+        <li><strong>Consensus without trust:</strong> the validation phase shows that mathematical proof — not authority — is what makes blockchain trustless.</li>
+        <li><strong>Blockchain immutability:</strong> each block uses the previous block's hash as input, so students feel why altering a past block would break the entire chain.</li>
+        <li><strong>Mining difficulty adjustment:</strong> the educator can change the difficulty mid-game, mirroring how Bitcoin adjusts difficulty every 2016 blocks.</li>
+        <li><strong>Transaction fees as an incentive:</strong> the fee selection strategy teaches why fees exist and why they matter for network security long-term.</li>
+        <li><strong>51% attack intuition:</strong> the consensus mechanic naturally raises the question: what if a majority of miners colluded? A powerful discussion prompt.</li>
+      </ul>
+    </section>
+
+    <!-- ── Use cases ──────────────────────────────────────────── -->
+    <section id="use-cases">
+      <div class="section-label">Who uses it</div>
+      <h2 class="section-title">Designed for any educational context</h2>
+      <div class="card-grid-3">
+        <div class="card">
+          <div class="card-icon">🎓</div>
+          <div class="card-title">University courses</div>
+          <div class="card-body">Business schools, computer science departments, economics and fintech programs. Ideal for a single 90-minute lecture on blockchain fundamentals.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏫</div>
+          <div class="card-title">High school classes</div>
+          <div class="card-body">Technology and economics electives. No prior knowledge of Bitcoin required. The game explains itself through play.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">💼</div>
+          <div class="card-title">Corporate training</div>
+          <div class="card-body">Fintech firms, banks, consulting companies running blockchain literacy programs for employees. Works for groups of 5 to 20.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <div class="card-title">Remote sessions</div>
+          <div class="card-body">The educator shares the Satoshi screen via Zoom or Teams. Students open Miner View on their own devices. Works identically online and in person.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Bootcamps</div>
+          <div class="card-body">Blockchain and Web3 developer bootcamps needing a fast, engaging intro to consensus mechanics before diving into technical content.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🎤</div>
+          <div class="card-title">Conferences & workshops</div>
+          <div class="card-body">Live audience participation at blockchain events. No setup time, no accounts — the game is running within 60 seconds of opening the browser.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Technical features ─────────────────────────────────── -->
+    <section id="features">
+      <div class="section-label">Technical details</div>
+      <h2 class="section-title">Built for the classroom — no friction, no dependencies</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">🔒</div>
+          <div class="card-title">Real MD5 hashing</div>
+          <div class="card-body">The Hash Calculator uses the actual MD5 cryptographic function. The same inputs always produce the same hash — students are doing real cryptography, not a simulation of it.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">💾</div>
+          <div class="card-title">Persistent state</div>
+          <div class="card-body">Game progress is saved automatically in the browser. Closing and reopening the tab restores the exact game state — no lost data between rounds or sessions.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📱</div>
+          <div class="card-title">Responsive Miner View</div>
+          <div class="card-body">The student interface is fully responsive — works on laptops, tablets, and phones. The moderator view is optimised for large projected screens.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚙️</div>
+          <div class="card-title">Adjustable difficulty</div>
+          <div class="card-body">The educator can change the mining difficulty at any point — making rounds faster or slower to control session pacing and demonstrate Bitcoin's difficulty adjustment mechanism.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔓</div>
+          <div class="card-title">Completely open</div>
+          <div class="card-body">No backend, no database, no accounts, no cookies except local game state. Three HTML files. Copyright free. Use it, share it, adapt it.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛜</div>
+          <div class="card-title">Works offline</div>
+          <div class="card-body">Once loaded, the game works without an internet connection. Useful for classrooms with unreliable WiFi — students only need to load the page once.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ───────────────────────────────────────────────── -->
+    <section id="faq">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Common questions</h2>
+      <div class="faq">
+        <details class="faq-item">
+          <summary>Is The Bitcoin Game really free?</summary>
+          <div class="faq-answer">Yes — completely and permanently free. No registration, no subscription, no paid tiers, no ads. It runs in any web browser with no installation required.</div>
+        </details>
+        <details class="faq-item">
+          <summary>How many students can play at once?</summary>
+          <div class="faq-answer">The game supports 2 to 20 real players (miners) per session. Any remaining slots up to 20 are filled with fictional "users" who appear as transaction counterparties, making the transaction pool realistic regardless of class size.</div>
+        </details>
+        <details class="faq-item">
+          <summary>How long does a session take?</summary>
+          <div class="faq-answer">A full 10-block game takes approximately 60 to 90 minutes, making it ideal for a single university lecture. Educators can end the game early after any number of blocks — 3 to 5 blocks runs in about 30 to 45 minutes, perfect for a shorter class or workshop segment.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Do students need to know anything about Bitcoin beforehand?</summary>
+          <div class="faq-answer">No. The game is designed to teach from scratch. A brief 5-minute verbal introduction from the educator is enough — the game mechanics explain the concepts through play. The Miner View includes a full guide that students can consult at any time.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Can it be used for remote or online classes?</summary>
+          <div class="faq-answer">Yes. The educator shares their Satoshi View screen via Zoom, Microsoft Teams, Google Meet, or any video conferencing tool. Students open the Miner View on their own devices simultaneously. The experience is identical to an in-person session.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Does it work on phones and tablets?</summary>
+          <div class="faq-answer">The Miner View is fully responsive and works well on phones and tablets. The Satoshi (moderator) View is designed for desktop or laptop — it is intended to be projected on a large screen, so a full-size display is recommended for the educator.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Is there a teacher guide or lesson plan?</summary>
+          <div class="faq-answer">Each view includes a built-in guide. The Satoshi View contains a full moderator guide with step-by-step instructions for running the session. The Miner View contains a complete player guide explaining each field of the Hash Calculator, the winning condition, and strategy tips. No external materials are needed.</div>
+        </details>
+        <details class="faq-item">
+          <summary>Can I modify or adapt the game?</summary>
+          <div class="faq-answer">Yes. The Bitcoin Game is copyright free. The source code is three plain HTML files with no build system or dependencies beyond a CDN-hosted cryptography library. Any educator or developer is welcome to adapt it for their context.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ── Author ─────────────────────────────────────────────── -->
+    <section id="author">
+      <div class="section-label">The creator</div>
+      <div class="author-card">
+        <div class="author-avatar">👨‍🏫</div>
+        <div>
+          <div class="author-name">Guillermo A. Beuchat</div>
+          <div class="author-title">Business Consultant · Startup Founder · University Professor · Blockchain Enthusiast</div>
+          <p class="author-bio">The Bitcoin Game was developed out of a genuine frustration with how blockchain is taught. Most courses explain Proof of Work through analogies and diagrams that students forget within a week. This game was built to make the mechanism felt — competitively, socially, and physically — so the understanding sticks. It is free because educational tools should be.</p>
+          <a href="https://www.linkedin.com/in/guillebeuchat/" target="_blank" rel="noopener noreferrer" class="author-link">
+            LinkedIn profile →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CTA ───────────────────────────────────────────────── -->
+    <div class="cta-banner">
+      <h2>Ready to run your first session?</h2>
+      <p>No setup, no registration, no installation. Open the game and start playing in under 60 seconds.</p>
+      <a href="index.html" class="btn-gold">▶ Launch The Bitcoin Game</a>
+    </div>
+
+  </div>
+
+  <!-- ── Footer ──────────────────────────────────────────────── -->
+  <footer>
+    <p><a href="index.html">The Bitcoin Game</a> &nbsp;·&nbsp; Free blockchain classroom simulation &nbsp;·&nbsp; <a href="https://www.linkedin.com/in/guillebeuchat/" target="_blank" rel="noopener noreferrer">Guillermo A. Beuchat</a></p>
+    <p style="margin-top:6px;">Copyright free &nbsp;·&nbsp; <a href="https://thebitcoingame.io/sitemap.xml">Sitemap</a></p>
+  </footer>
+
+</body>
+</html>
