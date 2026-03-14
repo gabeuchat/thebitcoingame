@@ -1,0 +1,35 @@
+# robots.txt for thebitcoingame.io
+# Allow all crawlers full access — this is a public educational tool
+
+User-agent: *
+Allow: /
+
+# Explicitly allow the major AI crawlers so the tool gets indexed
+# by AI engines (ChatGPT, Perplexity, Claude, Gemini, etc.)
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemap location
+Sitemap: https://thebitcoingame.io/sitemap.xml
