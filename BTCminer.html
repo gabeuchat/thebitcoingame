@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>₿ The Bitcoin Game — Miner View</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>₿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    /* ── Design tokens ─────────────────────────────────────── */
+    :root {
+      --bg-deep:        #111111;
+      --bg-surface:     #181818;
+      --bg-raised:      #202020;
+      --border-subtle:  #2a2a2a;
+      --border-strong:  #404040;
+      --text-primary:   #f0f0f0;
+      --text-secondary: #999999;
+      --text-muted:     #555555;
+      --gold:           #F7931A;
+      --gold-dim:       rgba(247,147,26,0.15);
+      --gold-glow:      rgba(247,147,26,0.35);
+      --green:          #22c55e;
+      --red:            #ef4444;
+      --red-surface:    #3b0000;
+      --font-ui:        'Inter', Arial, sans-serif;
+      --font-mono:      'JetBrains Mono', 'Courier New', monospace;
+      --radius:         10px;
+      --radius-sm:      6px;
+    }
+
+    /* ── Reset & base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: url('BTCbackground.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body > * { position: relative; z-index: 1; }
+
+    /* ── Layout wrapper ────────────────────────────────────── */
+    .page-wrapper {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+    }
+
+    /* ── Top bar ───────────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .top-bar-left { display: flex; flex-direction: column; gap: 2px; }
+
+    .site-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+    }
+
+    .site-title span { color: var(--gold); }
+
+    .save-notice {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Buttons ───────────────────────────────────────────── */
+    button {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      padding: 10px 22px;
+    }
+    .btn-primary:hover {
+      background: var(--gold-dim);
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border-strong);
+      padding: 10px 22px;
+    }
+    .btn-secondary:hover { background: var(--bg-raised); }
+
+    .btn-danger {
+      background: var(--red-surface);
+      color: #fca5a5;
+      border: 1.5px solid var(--red);
+      padding: 10px 22px;
+    }
+    .btn-danger:hover { background: #4f0000; }
+
+    .copy-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      border-radius: var(--radius-sm);
+    }
+    .copy-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+    /* ── Panels ────────────────────────────────────────────── */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 22px;
+      min-width: 0; /* prevent grid blowout on narrow screens */
+    }
+
+    .panel-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    /* ── Two-column main grid ──────────────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* ── Collapsible details ───────────────────────────────── */
+    details { margin-bottom: 14px; }
+
+    details > summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      user-select: none;
+      transition: color 0.15s;
+    }
+
+    details > summary:hover { color: var(--text-primary); }
+    details > summary::before { content: '▶'; font-size: 0.65rem; transition: transform 0.2s; }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details[open] > summary { border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-bottom: 0; }
+
+    .details-body {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 20px;
+    }
+
+    /* ── Hash Calculator form ──────────────────────────────── */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .field-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .field-group input[type="text"] {
+      width: 100%;
+      background: var(--bg-raised);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-size: 0.92rem;
+      transition: border-color 0.15s;
+    }
+
+    .field-group input[type="text"]:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    /* monospace fields */
+    .field-group input.mono { font-family: var(--font-mono); }
+
+    /* ── Hash result display ───────────────────────────────── */
+    .hash-result-wrap {
+      margin-top: 18px;
+      padding: 14px 16px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      min-height: 60px;
+    }
+
+    .hash-result-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .hash-result-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    #result {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-shadow: 0 0 14px rgba(247,147,26,0.45);
+      word-break: break-all;
+      flex: 1;
+    }
+
+    /* ── Log table ─────────────────────────────────────────── */
+    #logtable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #logtable th {
+      background: var(--bg-raised);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 9px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    #logtable td {
+      padding: 7px 10px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+
+    #logtable td:first-child {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-secondary);
+      width: 70px;
+    }
+
+    #logtable td input[type="text"] {
+      width: 100%;
+      background: transparent;
+      color: var(--text-primary);
+      border: none;
+      border-bottom: 1px solid var(--border-subtle);
+      border-radius: 0;
+      padding: 4px 4px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      transition: border-color 0.15s;
+    }
+
+    #logtable td input[type="text"]:focus {
+      outline: none;
+      border-bottom-color: var(--gold);
+    }
+
+    /* Active log row */
+    #logtable tbody tr.log-active td {
+      background: rgba(247,147,26,0.06);
+      border-left: 3px solid var(--gold);
+    }
+
+    #logtable tbody tr.log-active td:first-child {
+      color: var(--gold);
+    }
+
+    /* Genesis row — readable & selectable, but locked */
+    #log0[readonly] {
+      color: var(--text-muted);
+      cursor: text;
+      user-select: text;
+      border-bottom-color: transparent;
+    }
+
+    #log0[readonly]:focus {
+      border-bottom-color: var(--border-subtle);
+      outline: none;
+    }
+
+    /* ── Instructions text ─────────────────────────────────── */
+    .instructions-body {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .instructions-body p  { margin-bottom: 10px; }
+
+    /* Phase heading */
+    .phase-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 14px 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-left: 3px solid var(--gold);
+      padding-left: 8px;
+    }
+
+    /* Numbered action steps */
+    .check-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 6px 0;
+    }
+
+    .check-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 10px;
+      margin-bottom: 4px;
+      background: var(--bg-raised);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .check-list li .step-num {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* Win condition callout */
+    .callout-win {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(247,147,26,0.10);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+
+    .callout-win .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Warning callout */
+    .callout-warn {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(239,68,68,0.10);
+      border: 1px solid rgba(239,68,68,0.35);
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
+      color: #fca5a5;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    .callout-warn strong,
+    .callout-win strong { color: var(--text-primary); }
+
+    /* Strategy box */
+    .strategy-box {
+      padding: 12px 14px;
+      background: rgba(34,197,94,0.07);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+    }
+
+    .strategy-box-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 6px;
+    }
+
+    .strategy-box ul {
+      padding-left: 16px;
+      margin: 0;
+    }
+
+    .strategy-box li {
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      line-height: 1.45;
+    }
+
+    /* Field reference table */
+    .field-ref {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 6px;
+      font-size: 0.82rem;
+    }
+
+    .field-ref td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    .field-ref td:first-child {
+      font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+      width: 35%;
+    }
+
+    .field-ref td:last-child {
+      color: var(--text-secondary);
+    }
+
+    .field-ref tr:last-child td { border-bottom: none; }
+
+    /* ── Background overlay (consistent 0.55 across all pages) */
+    body::before {
+      background: rgba(0,0,0,0.55);
+    }
+
+    /* ── Responsive — narrow screens & mobile ──────────────── */
+    @media (max-width: 780px) {
+
+      /* Stack the two panels vertically */
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* Tighter page padding */
+      .page-wrapper {
+        padding: 0 10px 30px;
+      }
+
+      /* Shrink top bar so it stays on one line */
+      .site-title {
+        font-size: 0.88rem;
+      }
+
+      .save-notice {
+        font-size: 0.68rem;
+      }
+
+      .top-bar {
+        padding: 10px 0 8px;
+      }
+
+      /* Buttons: slightly smaller on mobile */
+      .btn-danger {
+        padding: 8px 14px;
+        font-size: 0.82rem;
+      }
+
+      /* Ensure all text inputs fill their container */
+      .field-group input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Log table: let hash column use all available space */
+      #logtable {
+        table-layout: fixed;
+        width: 100%;
+      }
+
+      #logtable td:first-child {
+        width: 60px;
+      }
+
+      #logtable td:last-child {
+        width: auto;
+      }
+
+      #logtable td input[type="text"] {
+        width: 100%;
+        font-size: 0.75rem;
+      }
+
+      /* Hash result: allow long hashes to wrap */
+      #result {
+        font-size: 1rem;
+        word-break: break-all;
+      }
+
+      .hash-result-wrap {
+        padding: 10px 12px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Top bar ───────────────────────────────────────────── -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="site-title">— THE <span>₿</span>ITCOIN GAME — <span style="color:var(--text-secondary);font-size:0.82rem;font-weight:500;">Miner View</span></div>
+      <span class="save-notice">💾 Progress saved automatically — safe to close and reopen</span>
+    </div>
+    <button class="btn-danger" onclick="resetGame()">↺ Reset Game</button>
+  </div>
+
+  <!-- ── Instructions (collapsed by default) ───────────────── -->
+  <details>
+    <summary>📖 How to play — Miner Guide</summary>
+    <div class="details-body instructions-body">
+
+      <p>You are competing to <strong>mine blocks</strong> and earn as much BTC as possible. Mining means finding a special input (called a <strong>Nonce</strong>) that makes a hash meet a specific condition. The Hash Calculator on the left is your main tool.</p>
+
+      <div class="callout-win">
+        <span class="callout-icon">⚡</span>
+        <span><strong>The winning condition:</strong> look at the last character of your Computed Hash. It must match the difficulty condition shown by Satoshi (e.g. if difficulty is "Ended in 9", the last character must be <strong>9</strong>). Keep changing the Nonce and clicking Calculate Hash until it does.</span>
+      </div>
+
+      <span class="phase-label">⛏️ Step 1 — Fill in the Hash Calculator</span>
+      <p>Look at Satoshi's screen for the current block info. Fill in all five fields:</p>
+      <table class="field-ref">
+        <tr><td>Previous Block Hash</td><td>Copy from your <strong>Log table</strong> on the right — use the last completed block's hash. For Block 1, use the Genesis hash.</td></tr>
+        <tr><td>Current Block Name</td><td>The block being mined right now (e.g. <strong>B1</strong>, <strong>B2</strong>…). Shown on Satoshi's screen.</td></tr>
+        <tr><td>Your Miner ID</td><td>Your assigned ID (e.g. <strong>Miner1</strong>). Always the same — never change it.</td></tr>
+        <tr><td>Transactions</td><td>The IDs of the transactions you chose, joined together with <strong>no spaces</strong>, in <strong>ascending order</strong> (e.g. <strong>T1T3T7</strong> — always lowest number first, never T7T3T1). Choose from Satoshi's Transaction Pool. <em>Order matters: the wrong order produces a different hash.</em></td></tr>
+        <tr><td>Nonce</td><td>Your guess — type <strong>any text or number</strong>. This is what you change repeatedly to find a valid hash.</td></tr>
+      </table>
+
+      <span class="phase-label">🎯 Step 2 — Find a valid hash</span>
+      <ul class="check-list">
+        <li><span class="step-num">1</span><span>Click <strong>Calculate Hash</strong>. Look at the last character of the result.</span></li>
+        <li><span class="step-num">2</span><span>If it doesn't meet the difficulty condition → change the Nonce (try anything: a word, a number, random letters) and click again.</span></li>
+        <li><span class="step-num">3</span><span>Repeat until the last character matches. <strong>Every change gives a completely different hash</strong> — that unpredictability is the whole point of Proof of Work.</span></li>
+        <li><span class="step-num">4</span><span>When you find a valid hash → shout <strong>"BITCOIN!"</strong> loud and clear.</span></li>
+      </ul>
+
+      <span class="phase-label">📢 Step 3 — After shouting "BITCOIN!"</span>
+      <ul class="check-list">
+        <li><span class="step-num">5</span><span>Tell Satoshi your <strong>Nonce</strong> and your <strong>selected transactions in ascending order</strong> (e.g. "T1, T3, T7" — lowest number first). Satoshi will enter both on the main screen so everyone can verify.</span></li>
+        <li><span class="step-num">6</span><span>All other miners must enter your exact inputs in their own calculator and confirm the hash matches. This is consensus.</span></li>
+        <li><span class="step-num">7</span><span>If consensus is reached, Satoshi closes the block. You receive the <strong>block reward + all transaction fees</strong> from the transactions you included.</span></li>
+        <li><span class="step-num">8</span><span>Save the agreed hash in your <strong>Log table</strong> (right panel). You will need it as the "Previous Block Hash" for the next block — this is what makes the chain.</span></li>
+      </ul>
+
+      <span class="phase-label">👁️ If someone else shouts "BITCOIN!" first</span>
+      <ul class="check-list">
+        <li><span class="step-num">A</span><span><strong>Stop mining immediately.</strong> Enter the winning miner's exact inputs in your calculator (Satoshi will display them).</span></li>
+        <li><span class="step-num">B</span><span>Click Calculate Hash. If your result matches what Satoshi shows → the block is valid. Agree.</span></li>
+        <li><span class="step-num">C</span><span>If it does <em>not</em> match, or any balance goes negative, or block size is exceeded → do <strong>not</strong> agree. Satoshi will reject the block and mining resumes.</span></li>
+      </ul>
+
+      <div class="callout-warn">⚠️ <span><strong>Transactions must follow two rules:</strong> (1) the total size of your chosen transactions must not exceed the Max Block Size shown by Satoshi, and (2) no player's balance can go below zero. The Satoshi screen will warn if either rule is broken.</span></div>
+
+      <div class="strategy-box">
+        <div class="strategy-box-title">💰 Strategy tips — how to maximise your BTC</div>
+        <ul>
+          <li><strong>Pick high-fee transactions</strong> — fees go directly into your pocket when you mine the block.</li>
+          <li><strong>Include transactions where you receive BTC</strong> — your balance goes up even if you don't mine the block.</li>
+          <li><strong>Avoid transactions where you send BTC</strong> — they reduce your balance.</li>
+          <li><strong>Watch other miners' balances</strong> — sometimes it's worth including a transaction that hurts a rival ahead of you in the standings.</li>
+        </ul>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ── Main grid: Hash Calculator | Log ─────────────────── -->
+  <div class="main-grid">
+
+    <!-- LEFT: Hash Calculator -->
+    <div class="panel">
+      <div class="panel-title">Hash Calculator</div>
+
+      <div class="field-group">
+        <label for="prevHash">Previous Block Hash</label>
+        <input type="text" id="prevHash" class="mono" placeholder="Paste hash from the Log table">
+      </div>
+
+      <div class="field-group">
+        <label for="blockName">Current Block Name</label>
+        <input type="text" id="blockName" class="mono" placeholder="e.g. B1, B2, B3 …">
+      </div>
+
+      <div class="field-group">
+        <label for="miner">Your Miner ID</label>
+        <input type="text" id="miner" class="mono" placeholder="e.g. Miner1, Miner2 …">
+      </div>
+
+      <div class="field-group">
+        <label for="transactions">Transactions (concatenated)</label>
+        <input type="text" id="transactions" class="mono" placeholder="e.g. T1T2, T1T3T4 …">
+      </div>
+
+      <div class="field-group">
+        <label for="nonce">Nonce (your guess)</label>
+        <input type="text" id="nonce" class="mono" placeholder="Try any text or number">
+      </div>
+
+      <button class="btn-primary" onclick="calculateHash()" style="width:100%;margin-top:4px;">Calculate Hash</button>
+
+      <!-- Hash result -->
+      <div class="hash-result-wrap">
+        <div class="hash-result-label">Computed Hash</div>
+        <div class="hash-result-row">
+          <span id="result">—</span>
+          <button class="copy-btn" onclick="copyHash()" title="Copy hash to clipboard">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Log -->
+    <div class="panel">
+      <div class="panel-title">Block Hash Log</div>
+      <table id="logtable">
+        <thead>
+          <tr>
+            <th>Block</th>
+            <th>Agreed Hash</th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr><td>Genesis</td><td><input type="text" id="log0" value="0ccc9947eb5b21bd245431a18bed17ba" readonly title="Genesis hash — read only. Click to select and copy."></td></tr>
+          <tr><td>B1</td>    <td><input type="text" id="log1"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B2</td>    <td><input type="text" id="log2"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B3</td>    <td><input type="text" id="log3"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B4</td>    <td><input type="text" id="log4"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B5</td>    <td><input type="text" id="log5"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B6</td>    <td><input type="text" id="log6"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B7</td>    <td><input type="text" id="log7"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B8</td>    <td><input type="text" id="log8"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B9</td>    <td><input type="text" id="log9"  oninput="saveState(); updateLogHighlight();"></td></tr>
+          <tr><td>B10</td>   <td><input type="text" id="log10" oninput="saveState(); updateLogHighlight();"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- end main-grid -->
+
+</div><!-- end page-wrapper -->
+
+<script>
+  'use strict'; // fix #21
+
+  /* ── Constants  (fix #23) ────────────────────────────────── */
+  const STORAGE_KEY  = 'btcMinerState';
+  const MAX_LOG_ROWS = 10; // B1 – B10
+
+  /* ── Visual helpers ──────────────────────────────────────── */
+
+  /* Highlight the first empty log row (= the next one to fill in) */
+  function updateLogHighlight() {
+    const tbody = document.getElementById('logBody');
+    let found = false;
+    for (let i = 0; i < tbody.rows.length; i++) {
+      const row   = tbody.rows[i];
+      const input = row.querySelector('input[type="text"]');
+      const empty = !input || input.value.trim() === '';
+      // fix #17 – i > 0 skips Genesis (row 0); readonly, never needs highlighting
+      row.classList.toggle('log-active', !found && empty && i > 0);
+      if (!found && empty && i > 0) found = true;
+    }
+  }
+
+  function copyHash() {
+    const hash = document.getElementById('result').textContent.trim();
+    if (!hash || hash === '—') return;
+    navigator.clipboard.writeText(hash)
+      .then(() => {
+        const btn  = document.querySelector('.copy-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      })
+      .catch(() => {
+        // fix #13 – handle clipboard permission denial gracefully
+        const btn = document.querySelector('.copy-btn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copy failed';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+  }
+
+  /* ── Persistence  (fix #12 – try/catch on all localStorage ops) ── */
+
+  function saveState() {
+    try {
+      const state = {
+        prevHash:     document.getElementById('prevHash').value,
+        blockName:    document.getElementById('blockName').value,
+        miner:        document.getElementById('miner').value,
+        transactions: document.getElementById('transactions').value,
+        nonce:        document.getElementById('nonce').value,
+        result:       document.getElementById('result').textContent,
+        log:          []
+      };
+      // fix #17 – start at 1: log0 (Genesis) is readonly/hardcoded, no need to persist it
+      for (let i = 1; i <= MAX_LOG_ROWS; i++) {
+        state.log.push(document.getElementById('log' + i).value);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      console.warn('saveState failed:', err);
+    }
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const s = JSON.parse(saved);
+
+      document.getElementById('prevHash').value     = s.prevHash     || '';
+      document.getElementById('blockName').value    = s.blockName    || '';
+      document.getElementById('miner').value        = s.miner        || '';
+      document.getElementById('transactions').value = s.transactions || '';
+      document.getElementById('nonce').value        = s.nonce        || '';
+      document.getElementById('result').textContent = s.result       || '—';
+
+      // fix #17 – restore only B1–B10 (index 1–10); Genesis (log0) is never persisted
+      if (s.log) {
+        for (let i = 1; i <= MAX_LOG_ROWS; i++) {
+          document.getElementById('log' + i).value = s.log[i - 1] || '';
+        }
+      }
+      updateLogHighlight();
+    } catch (err) {
+      // fix #12 – corrupted storage: clear and continue with clean state
+      console.warn('loadState failed, clearing saved data:', err);
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+    }
+  }
+
+  function resetGame() {
+    if (!confirm('Reset the game? All saved progress will be permanently deleted.')) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+    location.reload();
+  }
+
+  /* ── Game logic ──────────────────────────────────────────── */
+  function calculateHash() {
+    const prevHash     = document.getElementById('prevHash').value;
+    const blockName    = document.getElementById('blockName').value;
+    const miner        = document.getElementById('miner').value;
+    const transactions = document.getElementById('transactions').value;
+    const nonce        = document.getElementById('nonce').value;
+
+    if (!prevHash && !blockName && !miner && !transactions && !nonce) {
+      document.getElementById('result').textContent = '—';
+      saveState();
+      return;
+    }
+
+    const hash = CryptoJS.MD5(prevHash + blockName + miner + transactions + nonce).toString();
+    document.getElementById('result').textContent = hash;
+    saveState();
+  }
+
+  /* ── Boot ────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    updateLogHighlight();
+  });
+</script>
+</body>
+</html>

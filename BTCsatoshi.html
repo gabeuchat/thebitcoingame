@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>₿ The Bitcoin Game — Satoshi View</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>₿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    /* ── Design tokens ─────────────────────────────────────── */
+    :root {
+      --bg-deep:        #111111;
+      --bg-surface:     #181818;
+      --bg-raised:      #202020;
+      --border-subtle:  #2a2a2a;
+      --border-strong:  #404040;
+      --text-primary:   #f0f0f0;
+      --text-secondary: #999999;
+      --text-muted:     #555555;
+      --gold:           #F7931A;
+      --gold-dim:       rgba(247,147,26,0.15);
+      --gold-glow:      rgba(247,147,26,0.35);
+      --green:          #22c55e;
+      --green-dim:      rgba(34,197,94,0.15);
+      --amber:          #f59e0b;
+      --amber-dim:      rgba(245,158,11,0.15);
+      --red:            #ef4444;
+      --red-dim:        rgba(239,68,68,0.18);
+      --red-surface:    #3b0000;
+      --font-ui:        'Inter', Arial, sans-serif;
+      --font-mono:      'JetBrains Mono', 'Courier New', monospace;
+      --radius:         10px;
+      --radius-sm:      6px;
+    }
+
+    /* ── Reset & base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: url('BTCbackground.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      min-height: 100vh;
+    }
+
+    /* Dark overlay over background image */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Everything sits above the overlay */
+    body > * { position: relative; z-index: 1; }
+
+    /* ── Layout wrapper ────────────────────────────────────── */
+    .page-wrapper {
+      max-width: 1700px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+    }
+
+    /* ── Top bar ───────────────────────────────────────────── */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 14px;
+      gap: 16px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .site-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .site-title span { color: var(--gold); }
+
+    .save-notice {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Alert banner ──────────────────────────────────────── */
+    .alert-banner {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      animation: flashAlert 1s ease-in-out infinite alternate;
+    }
+
+    .alert-banner.visible { display: flex; }
+
+    .alert-banner.alert-red {
+      background: var(--red-surface);
+      border: 1px solid var(--red);
+      color: #fca5a5;
+    }
+
+    .alert-banner.alert-amber {
+      background: #3b2500;
+      border: 1px solid var(--amber);
+      color: #fcd34d;
+    }
+
+    @keyframes flashAlert {
+      from { opacity: 1; }
+      to   { opacity: 0.65; }
+    }
+
+    /* ── Countdown overlay ─────────────────────────────────── */
+    #countdown-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    #countdown-overlay.visible { display: flex; }
+
+    #countdown-overlay .countdown-number {
+      font-size: 14rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-shadow: 0 0 60px var(--gold-glow), 0 0 120px var(--gold-glow);
+      line-height: 1;
+      animation: countPulse 0.9s ease-in-out;
+    }
+
+    #countdown-overlay .countdown-go {
+      font-size: 8rem;
+      font-weight: 700;
+      color: var(--green);
+      text-shadow: 0 0 60px rgba(34,197,94,0.5);
+      letter-spacing: 0.1em;
+    }
+
+    @keyframes countPulse {
+      0%   { transform: scale(1.4); opacity: 0; }
+      30%  { transform: scale(1.0); opacity: 1; }
+      85%  { transform: scale(1.0); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0; }
+    }
+
+    /* ── Buttons ───────────────────────────────────────────── */
+    button {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    /* Primary – gold */
+    .btn-primary {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      padding: 10px 22px;
+    }
+    .btn-primary:hover {
+      background: var(--gold-dim);
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    /* Secondary – white */
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 1.5px solid var(--border-strong);
+      padding: 10px 22px;
+    }
+    .btn-secondary:hover { background: var(--bg-raised); }
+
+    /* Confirm – green (Close Block) */
+    .btn-confirm {
+      background: transparent;
+      color: var(--green);
+      border: 1.5px solid var(--green);
+      padding: 10px 22px;
+    }
+    .btn-confirm:hover {
+      background: var(--green-dim);
+      box-shadow: 0 0 12px rgba(34,197,94,0.3);
+    }
+
+    /* Destructive – red */
+    .btn-danger {
+      background: var(--red-surface);
+      color: #fca5a5;
+      border: 1.5px solid var(--red);
+      padding: 10px 22px;
+    }
+    .btn-danger:hover { background: #4f0000; }
+
+    /* ── Panels / cards ────────────────────────────────────── */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    /* ── Collapsible details ───────────────────────────────── */
+    details { margin-bottom: 10px; }
+
+    details > summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      user-select: none;
+      transition: color 0.15s;
+    }
+
+    details > summary:hover { color: var(--text-primary); }
+    details > summary::before { content: '▶'; font-size: 0.65rem; transition: transform 0.2s; }
+    details[open] > summary::before { transform: rotate(90deg); }
+    details[open] > summary { border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-bottom: 0; }
+
+    .details-body {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 20px;
+    }
+
+    /* ── Inputs ────────────────────────────────────────────── */
+    input[type="text"], input[type="number"] {
+      background: var(--bg-raised);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      width: 110px;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-left: 6px;
+    }
+
+    /* ── Status chip (selected miner) ──────────────────────── */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-strong);
+      color: var(--text-muted);
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .status-chip.active {
+      background: rgba(34,197,94,0.12);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* ── Main game grid ────────────────────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Table base styles ─────────────────────────────────── */
+    table { border-collapse: collapse; width: 100%; }
+
+    th {
+      background: var(--bg-raised);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    td {
+      padding: 9px 10px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    /* ── Transaction table ─────────────────────────────────── */
+    #transactiontable td { text-align: center; }
+    #transactiontable td:nth-child(2),
+    #transactiontable td:nth-child(3) { font-weight: 500; }
+
+    #transactiontable tbody tr { transition: background 0.15s; }
+
+    #transactiontable tbody tr.tx-selected {
+      background: var(--gold-dim);
+      border-left: 3px solid var(--gold);
+    }
+
+    #transactiontable input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    /* ── Block size progress bar ───────────────────────────── */
+    .size-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .size-bar-label {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .size-bar-track {
+      flex: 1;
+      min-width: 120px;
+      height: 10px;
+      background: var(--bg-raised);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .size-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--green);
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .size-bar-fill.warn { background: var(--amber); }
+    .size-bar-fill.over { background: var(--red); }
+
+    .size-bar-value {
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* Hidden element kept for JS compatibility */
+    #sizesum { display: none; }
+
+    /* ── Balance table ─────────────────────────────────────── */
+    #balancetable td { text-align: center; }
+
+    #balancetable td:nth-child(3),
+    #balancetable td:nth-child(4) {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    #balancetable td:nth-child(4) {
+      font-size: 1.05rem;
+      color: var(--gold);
+    }
+
+    #balancetable tbody tr.row-miner { }
+    #balancetable tbody tr.row-user  { opacity: 0.45; }
+    #balancetable tbody tr.row-divider td {
+      background: var(--bg-raised);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    /* Selected miner row */
+    #balancetable tbody tr.row-selected {
+      background: rgba(247,147,26,0.1);
+      outline: 1px solid var(--gold);
+      outline-offset: -1px;
+    }
+
+    #balancetable tbody tr.row-selected td:nth-child(2)::before {
+      content: '₿ ';
+      color: var(--gold);
+    }
+
+    /* Negative balance cell */
+    .cell-negative {
+      color: var(--red) !important;
+      background: var(--red-dim) !important;
+      border-radius: 4px;
+    }
+
+    #balancetable input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    #balancetable input[type="text"] {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border-subtle);
+      border-radius: 0;
+      padding: 3px 4px;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+    }
+
+    #balancetable input[type="text"]:focus {
+      border-bottom-color: var(--gold);
+      outline: none;
+    }
+
+    /* ── Public mainnet table ──────────────────────────────── */
+    #publicmainnet { font-size: 0.88rem; }
+
+    #publicmainnet td { vertical-align: middle; }
+
+    #publicmainnet td:nth-child(4),
+    #publicmainnet td:nth-child(5) {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    #publicmainnet input[type="text"] {
+      width: 140px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    #publicmainnet tbody tr.row-genesis { opacity: 0.5; }
+
+    #publicmainnet tbody tr.row-closed {
+      opacity: 0.55;
+    }
+
+    #publicmainnet tbody tr.row-closed td:nth-child(5) {
+      color: var(--green);
+    }
+
+    #publicmainnet tbody tr.row-active {
+      border-left: 3px solid var(--gold);
+      background: rgba(247,147,26,0.06);
+    }
+
+    #publicmainnet tbody tr.row-active td:nth-child(5) {
+      color: var(--gold);
+    }
+
+    /* ── Parameters panel (inside details) ─────────────────── */
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .param-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .param-item label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .param-item input {
+      width: 100%;
+    }
+
+    /* ── Control row (buttons + countdown) ─────────────────── */
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    /* ── Refresh warning (below Open New Block) ─────────────── */
+    .refresh-warning {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(245,158,11,0.10);
+      border: 1px solid rgba(245,158,11,0.35);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: #fcd34d;
+      line-height: 1.5;
+    }
+
+
+    /* ── Instructions text ─────────────────────────────────── */
+    .instructions-body {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .instructions-body p  { margin-bottom: 10px; }
+    .instructions-body ul,
+    .instructions-body ol { padding-left: 20px; }
+    .instructions-body li { margin-bottom: 8px; }
+
+    .phase-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 16px 0 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-left: 3px solid var(--gold);
+      padding-left: 8px;
+    }
+
+    /* Checklist steps */
+    .check-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px 0;
+    }
+
+    .check-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 10px;
+      margin-bottom: 4px;
+      background: var(--bg-raised);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .check-list li .step-num {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* Warning callout */
+    .callout-warn {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.35);
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
+      color: #fca5a5;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    /* Info callout */
+    .callout-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(247,147,26,0.08);
+      border: 1px solid rgba(247,147,26,0.25);
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .callout-info strong,
+    .callout-warn strong { color: var(--text-primary); }
+
+    /* Param descriptions */
+    .param-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+
+    /* ── Misc ──────────────────────────────────────────────── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    /* hide the old textContent elements still used by JS */
+    #lastblock, #selectedminer-text { display: none; }
+
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── Countdown overlay ─────────────────────────────────── -->
+  <div id="countdown-overlay">
+    <div id="countdown-display" class="countdown-number"></div>
+  </div>
+
+  <!-- ── Alert banners ─────────────────────────────────────── -->
+  <div id="alert-size" class="alert-banner alert-red">
+    ⚠ Max Block Size Exceeded! Remove transactions before closing the block.
+  </div>
+  <div id="alert-balance" class="alert-banner alert-red">
+    ⚠ Negative Balance Detected! This block is invalid — deselect conflicting transactions.
+  </div>
+
+  <!-- ── Top bar ───────────────────────────────────────────── -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="site-title">— THE <span>₿</span>ITCOIN GAME — <span style="color:var(--text-secondary);font-size:0.85rem;font-weight:500;">Satoshi View</span></div>
+      <span class="save-notice">💾 Progress saved automatically</span>
+    </div>
+    <button class="btn-danger" onclick="resetGame()">↺ Reset Game</button>
+  </div>
+
+  <!-- ── Instructions (collapsed by default) ───────────────── -->
+  <details style="margin-bottom:14px;">
+    <summary>📖 Moderator Guide &amp; Rules</summary>
+    <div class="details-body instructions-body">
+
+      <p>You are <strong>Satoshi</strong> — the game moderator. You control the flow of every block. Keep this screen visible to all players at all times (project it or share your screen). Players start with <strong>1 BTC each</strong> and compete to collect the most by the end of 10 blocks.</p>
+
+      <span class="phase-label">⚙️ Before the game — Setup</span>
+      <ul class="check-list">
+        <li><span class="step-num">1</span><span>Set your <strong>Game Parameters</strong>: number of miners, block reward, max block size, and difficulty condition. Then click <strong>"Initialize Game"</strong>. Optionally type player names in the Bitcoin Balance table so miners can find themselves easily.</span></li>
+        <li><span class="step-num">2</span><span>Each miner opens <strong>Miner View</strong> on their own device and enters their assigned Miner ID (e.g. Miner1, Miner2…).</span></li>
+      </ul>
+
+      <div class="callout-info">💡 <span><strong>Difficulty condition:</strong> the hash must end in the character shown in your difficulty setting (e.g. "Ended in 9" means the last character of the hash must be <strong>9</strong>). Miners check the last character of their computed hash. Only about 1 in 16 tries will qualify — that's the Proof of Work.</span></div>
+
+      <span class="phase-label">▶️ Each round — Open a New Block</span>
+      <ul class="check-list">
+        <li><span class="step-num">3</span><span>Click <strong>"Open New Block"</strong>. A 3-second countdown runs, then 10 random transactions appear in the pool. The mining race begins — miners start guessing nonces immediately.</span></li>
+        <li><span class="step-num">4</span><span>Keep the <strong>Transaction Pool</strong> and <strong>Bitcoin Balance</strong> tables visible on the projected screen at all times during mining.</span></li>
+      </ul>
+
+      <span class="phase-label">📢 When a miner shouts "BITCOIN!" — Consensus</span>
+      <ul class="check-list">
+        <li><span class="step-num">5</span><span>All miners <strong>stop mining immediately</strong>. In the <strong>Bitcoin Balance</strong> table, tick the checkbox next to the miner who shouted. Their reward is added automatically.</span></li>
+        <li><span class="step-num">6</span><span>Ask the miner for: (a) their <strong>Nonce</strong> — type it in the <strong>Public Mainnet</strong> table (expand it below), and (b) their <strong>selected transactions</strong> — tick the matching checkboxes in the Transaction Pool <strong>in ascending order</strong> (T1 before T3 before T7, etc.). The Block Hash and balances update automatically.</span></li>
+        <li><span class="step-num">7</span><span>Verify all three conditions before closing the block:</span></li>
+      </ul>
+      <ul style="padding-left:32px;margin-bottom:8px;">
+        <li>✅ <strong>Block Hash ends in the required character</strong> (difficulty met)</li>
+        <li>✅ <strong>Block Size ≤ Max Size</strong> (no overflow warning shown)</li>
+        <li>✅ <strong>All New BTC Balances are ≥ 0</strong> (no negative balance warning shown)</li>
+      </ul>
+      <ul class="check-list">
+        <li><span class="step-num">8</span><span>Ask all other miners to independently verify the hash using their own Hash Calculator with the same inputs. When everyone agrees → click <strong>"Close Block &amp; Update Balance"</strong>.</span></li>
+      </ul>
+
+      <div class="callout-info">📋 <span><strong>Transaction ordering rule:</strong> transactions are always concatenated in ascending numerical order — T1 before T2 before T3, and so on — regardless of the order they were selected. This screen applies that order automatically. Miners must follow the same rule when typing their transaction string (e.g. <strong>T1T3T7</strong>, never T7T3T1). This guarantees everyone computes the same hash.</span></div>
+
+      <div class="callout-warn">⚠️ <span><strong>If consensus fails</strong> (wrong hash, size exceeded, or negative balance): uncheck the selected miner, uncheck all selected transactions, and resume mining. Another miner may shout "BITCOIN!" at any time.</span></div>
+
+      <span class="phase-label">🏁 End of game</span>
+      <p style="margin-top:8px;">After 10 blocks, the miner with the highest BTC balance wins. Use the Bitcoin Balance table to announce final standings.</p>
+
+    </div>
+  </details>
+
+  <!-- ── Game Parameters (collapsed after init) ────────────── -->
+  <details id="params-details" open style="margin-bottom:14px;">
+    <summary>⚙️ Game Parameters</summary>
+    <div class="details-body">
+      <div class="params-grid">
+        <div class="param-item">
+          <label for="maxSize">Max Size per Block</label>
+          <input type="number" id="maxSize" value="1000" oninput="saveState(); updateSizeBar();">
+          <div class="param-desc">Each transaction has a size. The sum of selected transactions must not exceed this limit.</div>
+        </div>
+        <div class="param-item">
+          <label for="minerReward">Miner Reward (BTC)</label>
+          <input type="number" id="minerReward" value="0.5" step="0.1" oninput="saveState()">
+          <div class="param-desc">New BTC awarded to the miner who successfully mines each block.</div>
+        </div>
+        <div class="param-item">
+          <label for="numMiners">Number of Miners (2–20)</label>
+          <input type="number" id="numMiners" placeholder="e.g. 5" min="2" max="20" oninput="saveState()">
+          <div class="param-desc">Real players. Remaining slots (up to 20) become fictional users who appear in transactions.</div>
+        </div>
+        <div class="param-item">
+          <label for="miningDifficulty">Difficulty (Hash condition)</label>
+          <input type="text" id="miningDifficulty" value="Ended in 9" oninput="saveState()">
+          <div class="param-desc">The hash must satisfy this condition to be valid. "Ended in 9" means the last character must be 9. Make it harder ("Ended in 99") or easier ("Ended in 5") mid-game as needed.</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="initializeButton()">Initialize Game</button>
+      <p id="Initializationbutton" style="margin-top:8px;font-size:0.82rem;color:var(--text-muted);"></p>
+    </div>
+  </details>
+
+  <!-- ── Main game area: Transaction Pool + Bitcoin Balance ─── -->
+  <div class="main-grid">
+
+    <!-- LEFT: Transaction Pool -->
+    <div class="panel">
+      <div class="section-label">Transaction Pool</div>
+
+      <!-- Block size progress bar -->
+      <div class="size-bar-wrap">
+        <span class="size-bar-label">Block Size:</span>
+        <div class="size-bar-track">
+          <div class="size-bar-fill" id="size-bar-fill"></div>
+        </div>
+        <span class="size-bar-value" id="size-bar-value">0 / 1000</span>
+        <!-- Hidden span kept for JS reads -->
+        <span id="sizesum" style="display:none;">0</span>
+      </div>
+
+      <table id="transactiontable">
+        <thead>
+          <tr>
+            <th style="width:50px">Tx</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Qty (BTC)</th>
+            <th>Size</th>
+            <th>Fee (BTC)</th>
+            <th style="width:50px">Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>T1</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check1"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T2</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check2"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T3</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check3"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T4</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check4"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T5</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check5"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T6</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check6"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T7</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check7"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T8</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check8"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T9</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check9"  onclick="handleCheckbox(this)"></td></tr>
+          <tr><td>T10</td><td></td><td></td><td></td><td></td><td></td><td><input type="checkbox" id="check10" onclick="handleCheckbox(this)"></td></tr>
+        </tbody>
+      </table>
+
+      <div class="control-row">
+        <button class="btn-primary"  onclick="openBlock()">▶ Open New Block</button>
+        <button class="btn-confirm"  onclick="closeBlock()">✓ Close Block &amp; Update Balance</button>
+      </div>
+      <div class="refresh-warning">
+        ⚠️ <strong>Do not refresh this page</strong> while the countdown is running — it may interrupt transaction generation. Progress is saved automatically at all other times.
+      </div>
+    </div>
+
+    <!-- RIGHT: Bitcoin Balance -->
+    <div class="panel">
+      <div class="section-label">Bitcoin Balance</div>
+
+      <!-- Selected miner status chip -->
+      <div id="miner-status-chip" class="status-chip">⬤ &nbsp;No miner selected</div>
+
+      <!-- Hidden for JS compat -->
+      <span id="selectedminer" style="display:none;">0</span>
+
+      <table id="balancetable">
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            <th>ID</th>
+            <th>Current BTC</th>
+            <th>New BTC</th>
+            <th>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer1"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer2"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer3"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer4"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer5"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer6"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer7"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer8"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer9"  onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer10" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer11" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer12" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer13" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer14" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer15" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer16" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer17" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer18" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer19" onclick="minerCheckbox(this)"></td></tr>
+          <tr><td><input type="text" oninput="saveState()"></td><td></td><td></td><td></td><td><input type="checkbox" id="checkminer20" onclick="minerCheckbox(this)"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- end main-grid -->
+
+  <!-- ── Public Mainnet (collapsible) ──────────────────────── -->
+  <details id="mainnet-details">
+    <summary>🔗 Public Mainnet — Block Chain</summary>
+    <div class="details-body">
+      <table style="font-size:0.82rem;margin-bottom:6px;border:none;">
+        <tr>
+          <td style="border:none;padding:4px 10px 4px 0;color:var(--text-muted);font-size:0.75rem;">Next block to mine:</td>
+          <td style="border:none;padding:4px 0;font-family:var(--font-mono);color:var(--gold);font-weight:700;" id="lastblock">1</td>
+        </tr>
+      </table>
+      <table id="publicmainnet">
+        <thead>
+          <tr>
+            <th style="width:80px">Block</th>
+            <th style="width:90px">Miner</th>
+            <th>Transactions</th>
+            <th style="width:150px">Nonce</th>
+            <th>Block Hash</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-genesis">
+            <td>Genesis</td><td>Satoshi</td><td>initialization</td><td>1</td>
+            <td style="font-family:var(--font-mono);font-size:0.8rem;">0ccc9947eb5b21bd245431a18bed17ba</td>
+          </tr>
+          <tr><td>B1</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B2</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B3</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B4</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B5</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B6</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B7</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B8</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B9</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+          <tr><td>B10</td><td></td><td></td><td><input type="text" oninput="calculateHash(); saveState();"></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+</div><!-- end page-wrapper -->
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS  (fixes #23 – no more scattered magic numbers)
+═══════════════════════════════════════════════════════════════ */
+const STORAGE_KEY         = 'btcSatoshiState';
+const MAX_PLAYERS         = 20;
+const MAX_TRANSACTIONS    = 10;
+const MAX_BLOCKS          = 10;
+const TRANSACTION_DELAY_MS = 4000;
+
+/* ═══════════════════════════════════════════════════════════════
+   GAME STATE  (fix #9 – single source of truth, never read DOM)
+═══════════════════════════════════════════════════════════════ */
+let currentBlock       = 1;    // block currently being mined (1–10)
+let selectedMinerIndex = 0;    // balancetable row index of selected miner (0 = none)
+let currentBlockSize   = 0;    // cumulative size of selected transactions
+let isInitialized      = false; // fix #3/#4 – guards against pre-init interactions
+let blockIsOpen        = false; // fix #6  – re-entrancy guard on openBlock
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════════════════════ */
+
+/** fix #11 – integer-arithmetic rounding, eliminates floating-point drift */
+function roundBTC(value) {
+  return Math.round(value * 100) / 100;
+}
+
+/** Write JS state variables to their display DOM nodes (one-way, never read back) */
+function syncStateToDom() {
+  document.getElementById('lastblock').textContent     = currentBlock;
+  document.getElementById('selectedminer').textContent = selectedMinerIndex;
+  document.getElementById('sizesum').textContent       = currentBlockSize;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL HELPERS
+═══════════════════════════════════════════════════════════════ */
+
+function updateSizeBar() {
+  // fix #10 – reads JS variable directly; updates textContent, no innerHTML
+  const max   = parseInt(document.getElementById('maxSize').value, 10) || 1000;
+  const pct   = Math.min((currentBlockSize / max) * 100, 100);
+  const fill  = document.getElementById('size-bar-fill');
+  const valEl = document.getElementById('size-bar-value');
+
+  fill.style.width = pct + '%';
+  fill.classList.remove('warn', 'over');
+  if (pct >= 100)     fill.classList.add('over');
+  else if (pct >= 75) fill.classList.add('warn');
+
+  valEl.textContent = currentBlockSize + ' / ' + max;
+}
+
+/** fix #26 – single-pass over balance rows: negative cell highlights + alert banners */
+function updateBalanceValidation() {
+  const baltable = document.getElementById('balancetable');
+  const max      = parseInt(document.getElementById('maxSize').value, 10) || 1000;
+  let hasNeg     = false;
+
+  for (let k = 1; k <= MAX_PLAYERS; k++) {
+    const cell = baltable.rows[k].cells[3];
+    const val  = parseFloat(cell.textContent);
+    const neg  = !isNaN(val) && val < 0;
+    cell.classList.toggle('cell-negative', neg);
+    if (neg) hasNeg = true;
+  }
+
+  document.getElementById('alert-size').classList.toggle('visible', currentBlockSize > max);
+  document.getElementById('alert-balance').classList.toggle('visible', hasNeg);
+}
+
+function updateMinerChip() {
+  // fix #27 – textContent only, no innerHTML with user-derived data
+  const chip = document.getElementById('miner-status-chip');
+  if (selectedMinerIndex === 0) {
+    chip.className   = 'status-chip';
+    chip.textContent = '\u26AB  No miner selected';
+  } else {
+    const id = document.getElementById('balancetable')
+                       .rows[selectedMinerIndex].cells[1].textContent;
+    chip.className   = 'status-chip active';
+    chip.textContent = '\u2713  ' + id + ' selected';
+  }
+}
+
+function updateSelectedMinerRow() {
+  const baltable = document.getElementById('balancetable');
+  for (let i = 1; i <= MAX_PLAYERS; i++) {
+    baltable.rows[i].classList.toggle('row-selected', i === selectedMinerIndex);
+  }
+}
+
+function updateTransactionRowHighlights() {
+  const table = document.getElementById('transactiontable');
+  for (let i = 1; i <= MAX_TRANSACTIONS; i++) {
+    const checked = table.rows[i].cells[6]
+                        .querySelector("input[type='checkbox']").checked;
+    table.rows[i].classList.toggle('tx-selected', checked);
+  }
+}
+
+function updateMainnetRowStyles() {
+  // fix #9 – uses JS variable, not DOM read
+  const maintable = document.getElementById('publicmainnet');
+  for (let i = 1; i <= MAX_BLOCKS; i++) {
+    // rows[0]=header, rows[1]=Genesis, rows[2..11]=B1..B10
+    const row = maintable.rows[i + 1];
+    row.classList.remove('row-closed', 'row-active');
+    if (i < currentBlock)        row.classList.add('row-closed');
+    else if (i === currentBlock) row.classList.add('row-active');
+  }
+}
+
+function applyBalanceRowTypes() {
+  const miners   = parseInt(document.getElementById('numMiners').value, 10) || 0;
+  const baltable = document.getElementById('balancetable');
+  for (let i = 1; i <= MAX_PLAYERS; i++) {
+    baltable.rows[i].classList.remove('row-miner', 'row-user');
+    baltable.rows[i].classList.add(i <= miners ? 'row-miner' : 'row-user');
+  }
+}
+
+function refreshAllVisuals() {
+  syncStateToDom();           // keep display nodes in sync
+  updateSizeBar();
+  updateBalanceValidation();  // fix #26 – replaces separate updateAlerts + updateNegativeCells
+  updateMinerChip();
+  updateSelectedMinerRow();
+  updateTransactionRowHighlights();
+  updateMainnetRowStyles();
+  applyBalanceRowTypes();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PERSISTENCE  (fix #12 – full try/catch on all localStorage ops)
+═══════════════════════════════════════════════════════════════ */
+
+function saveState() {
+  try {
+    const state = {
+      params: {
+        maxSize:          document.getElementById('maxSize').value,
+        minerReward:      document.getElementById('minerReward').value,
+        numMiners:        document.getElementById('numMiners').value,
+        miningDifficulty: document.getElementById('miningDifficulty').value
+      },
+      // fix #9 – save JS variables, not DOM text
+      currentBlock,
+      selectedMinerIndex,
+      currentBlockSize,
+      isInitialized,
+      mainnet:      [],
+      transactions: [],
+      balances:     []
+    };
+
+    const maintable = document.getElementById('publicmainnet');
+    for (let i = 1; i <= MAX_BLOCKS; i++) {
+      const row        = maintable.rows[i + 1];
+      const nonceCell  = row.cells[3];
+      const nonceInput = nonceCell.querySelector('input[type="text"]');
+      state.mainnet.push({
+        miner:        row.cells[1].textContent,
+        transactions: row.cells[2].textContent,
+        nonce:        nonceInput ? nonceInput.value : nonceCell.textContent,
+        nonceIsInput: !!nonceInput,
+        hash:         row.cells[4].textContent
+      });
+    }
+
+    const transTable = document.getElementById('transactiontable');
+    for (let i = 1; i <= MAX_TRANSACTIONS; i++) {
+      const row = transTable.rows[i];
+      state.transactions.push({
+        from:    row.cells[1].textContent,
+        to:      row.cells[2].textContent,
+        qty:     row.cells[3].textContent,
+        size:    row.cells[4].textContent,
+        fee:     row.cells[5].textContent,
+        checked: row.cells[6].querySelector("input[type='checkbox']").checked
+      });
+    }
+
+    const baltable = document.getElementById('balancetable');
+    for (let i = 1; i <= MAX_PLAYERS; i++) {
+      const row = baltable.rows[i];
+      state.balances.push({
+        name:    row.cells[0].querySelector('input[type="text"]').value,
+        id:      row.cells[1].textContent,
+        current: row.cells[2].textContent,
+        newbal:  row.cells[3].textContent,
+        checked: row.cells[4].querySelector("input[type='checkbox']").checked
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.warn('saveState failed:', err);
+  }
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    const s = JSON.parse(saved);
+
+    if (s.params) {
+      document.getElementById('maxSize').value          = s.params.maxSize          || '1000';
+      document.getElementById('minerReward').value      = s.params.minerReward      || '0.5';
+      document.getElementById('numMiners').value        = s.params.numMiners        || '';
+      document.getElementById('miningDifficulty').value = s.params.miningDifficulty || 'Ended in 9';
+    }
+
+    // fix #9 – restore JS variables (with fallback to old field names for backward compat)
+    currentBlock       = parseInt(s.currentBlock       || s.lastblock,     10) || 1;
+    selectedMinerIndex = parseInt(s.selectedMinerIndex || s.selectedminer, 10) || 0;
+    currentBlockSize   = parseInt(s.currentBlockSize   || s.sizesum,       10) || 0;
+    isInitialized      = !!s.isInitialized;
+
+    const maintable = document.getElementById('publicmainnet');
+    if (s.mainnet) {
+      for (let i = 0; i < s.mainnet.length; i++) {
+        const row        = maintable.rows[i + 2]; // +1 header, +1 Genesis
+        const d          = s.mainnet[i];
+        row.cells[1].textContent = d.miner;
+        row.cells[2].textContent = d.transactions;
+        row.cells[4].textContent = d.hash;
+
+        const nonceCell     = row.cells[3];
+        const existingInput = nonceCell.querySelector('input[type="text"]');
+        if (d.nonceIsInput) {
+          if (existingInput) {
+            existingInput.value = d.nonce;
+          } else {
+            // fix #18 – re-created input calls both calculateHash and saveState
+            const inp   = document.createElement('input');
+            inp.type    = 'text';
+            inp.value   = d.nonce;
+            inp.oninput = () => { calculateHash(); saveState(); };
+            nonceCell.textContent = '';
+            nonceCell.appendChild(inp);
+          }
+        } else {
+          if (existingInput) existingInput.remove();
+          nonceCell.textContent = d.nonce;
+        }
+      }
+    }
+
+    const transTable = document.getElementById('transactiontable');
+    if (s.transactions) {
+      for (let i = 0; i < s.transactions.length; i++) {
+        const row = transTable.rows[i + 1];
+        const d   = s.transactions[i];
+        row.cells[1].textContent = d.from;
+        row.cells[2].textContent = d.to;
+        row.cells[3].textContent = d.qty;
+        row.cells[4].textContent = d.size;
+        row.cells[5].textContent = d.fee;
+        row.cells[6].querySelector("input[type='checkbox']").checked = d.checked;
+      }
+    }
+
+    const baltable = document.getElementById('balancetable');
+    if (s.balances) {
+      for (let i = 0; i < s.balances.length; i++) {
+        const row = baltable.rows[i + 1];
+        const d   = s.balances[i];
+        row.cells[0].querySelector('input[type="text"]').value = d.name;
+        row.cells[1].textContent = d.id;
+        row.cells[2].textContent = d.current;
+        row.cells[3].textContent = d.newbal;
+        row.cells[4].querySelector("input[type='checkbox']").checked = d.checked;
+      }
+    }
+
+    refreshAllVisuals();
+
+  } catch (err) {
+    // fix #12 – corrupted storage: clear and continue with clean state
+    console.warn('loadState failed, clearing saved data:', err);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+  }
+}
+
+function resetGame() {
+  if (!confirm('Reset the game? All saved data will be permanently deleted.')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+  location.reload();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GAME LOGIC
+═══════════════════════════════════════════════════════════════ */
+
+// fix #22 – camelCase naming throughout
+// fix #25 – input validation in initializeButton
+function initializeButton() {
+  const miners = parseInt(document.getElementById('numMiners').value, 10);
+  if (isNaN(miners) || miners < 2 || miners > MAX_PLAYERS) {
+    alert('Please enter a valid number of miners between 2 and ' + MAX_PLAYERS + '.');
+    return;
+  }
+  const table = document.getElementById('balancetable');
+  for (let i = 1; i <= miners; i++) {
+    table.rows[i].cells[1].textContent = 'Miner' + i;
+    table.rows[i].cells[2].textContent = (1).toFixed(2);
+    table.rows[i].cells[3].textContent = (1).toFixed(2);
+  }
+  for (let j = miners + 1; j <= MAX_PLAYERS; j++) {
+    table.rows[j].cells[1].textContent = 'U' + j;
+    table.rows[j].cells[2].textContent = (1).toFixed(2);
+    table.rows[j].cells[3].textContent = (1).toFixed(2);
+  }
+  isInitialized = true;
+  document.getElementById('params-details').removeAttribute('open');
+  applyBalanceRowTypes();
+  saveState();
+}
+
+// fix #3/#4/#6/#7 – guards + re-entrancy lock + coupled timer
+function openBlock() {
+  if (!isInitialized) {
+    alert('Please initialize the game first.');
+    return;
+  }
+  if (blockIsOpen) {
+    alert('A block is already open. Close the current block before opening a new one.');
+    return;
+  }
+  if (currentBlock > MAX_BLOCKS) {
+    alert('The game is over! All ' + MAX_BLOCKS + ' blocks have been mined.');
+    return;
+  }
+
+  blockIsOpen = true;
+  const overlay = document.getElementById('countdown-overlay');
+  const display = document.getElementById('countdown-display');
+  let count = 3;
+
+  overlay.classList.add('visible');
+  display.className   = 'countdown-number';
+  display.textContent = count;
+
+  const intervalId = setInterval(() => {
+    count--;
+    if (count > 0) {
+      display.textContent = count;
+      display.classList.remove('countdown-number');
+      void display.offsetWidth; // reflow to re-trigger CSS animation
+      display.classList.add('countdown-number');
+    } else {
+      clearInterval(intervalId);
+      display.className   = 'countdown-go';
+      display.textContent = 'GO!';
+      // fix #7 – transaction generation triggered from countdown completion, not a parallel timer
+      setTimeout(() => {
+        overlay.classList.remove('visible');
+        generateTransactions();
+      }, 800);
+    }
+  }, 1000);
+}
+
+// fix #19 – DOM lookups hoisted outside the loop
+function generateTransactions() {
+  const table    = document.getElementById('transactiontable');
+  const baltable = document.getElementById('balancetable');
+  for (let i = 1; i <= MAX_TRANSACTIONS; i++) {
+    const qty  = Math.random() * 0.3  + 0.1;
+    const fee  = Math.random() * 0.19 + 0.01;
+    const size = Math.floor(Math.random() * 160) + 80;
+    let from   = Math.floor(Math.random() * 19) + 1;
+    let to     = Math.floor(Math.random() * 19) + 1;
+    while (from === to) { to = Math.floor(Math.random() * 19) + 1; }
+    const row = table.rows[i];
+    row.cells[1].textContent = baltable.rows[from].cells[1].textContent;
+    row.cells[2].textContent = baltable.rows[to].cells[1].textContent;
+    row.cells[3].textContent = qty.toFixed(2);
+    row.cells[4].textContent = size;
+    row.cells[5].textContent = fee.toFixed(2);
+  }
+  saveState();
+}
+
+// fix #3/#5/#14/#15/#16/#24 – all sub-fixes applied
+function handleCheckbox(checkbox) {
+  if (!isInitialized) {
+    alert('Please initialize the game first.');
+    checkbox.checked = false;
+    return;
+  }
+  // fix #15 – strict equality (selectedMinerIndex is now a number)
+  if (selectedMinerIndex === 0) {
+    alert('Select a Miner first!');
+    checkbox.checked = false;
+    return;
+  }
+
+  const maintable = document.getElementById('publicmainnet');
+  const table     = document.getElementById('transactiontable');
+  const baltable  = document.getElementById('balancetable');
+  // fix #5 – robust DOM traversal
+  const rowIdx    = checkbox.closest('tr').rowIndex;
+  const row       = table.rows[rowIdx];
+
+  const from = row.cells[1].textContent;
+  const to   = row.cells[2].textContent;
+  // fix #24 – lowercase variable names
+  const qty  = parseFloat(row.cells[3].textContent);
+  const size = parseInt(row.cells[4].textContent, 10);
+  const fee  = parseFloat(row.cells[5].textContent);
+  const minerBalance = parseFloat(baltable.rows[selectedMinerIndex].cells[3].textContent);
+
+  // fix #9 – update JS variable, not DOM element
+  if (checkbox.checked) {
+    currentBlockSize += size;
+  } else {
+    currentBlockSize -= size;
+  }
+
+  // fix #14 – rebuild transaction string; single DOM write after loop
+  // Option A – always sort ascending (T1,T3,T7 never T7,T3,T1) so hash
+  // is deterministic regardless of checkbox click order.
+  const selectedTxIds = [];
+  for (let j = 1; j <= MAX_TRANSACTIONS; j++) {
+    if (table.rows[j].cells[6].querySelector("input[type='checkbox']").checked) {
+      selectedTxIds.push(table.rows[j].cells[0].textContent);
+    }
+  }
+  // Sort by the numeric part: T1 < T2 < ... < T10
+  selectedTxIds.sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, ''), 10);
+    const numB = parseInt(b.replace(/\D/g, ''), 10);
+    return numA - numB;
+  });
+  const transactions = selectedTxIds.join('');
+  maintable.rows[currentBlock + 1].cells[2].textContent = transactions;
+
+  // fix #18 – calculateHash does NOT save; this function saves at the end
+  calculateHash();
+
+  // fix #11 – roundBTC for all balance arithmetic
+  if (checkbox.checked) {
+    baltable.rows[selectedMinerIndex].cells[3].textContent =
+      roundBTC(minerBalance + fee).toFixed(2);
+    for (let i = 1; i <= MAX_PLAYERS; i++) {
+      const nb = parseFloat(baltable.rows[i].cells[3].textContent);
+      const id = baltable.rows[i].cells[1].textContent;
+      if      (id === from) { baltable.rows[i].cells[3].textContent = roundBTC(nb - qty - fee).toFixed(2); }
+      else if (id === to)   { baltable.rows[i].cells[3].textContent = roundBTC(nb + qty).toFixed(2); }
+    }
+  } else {
+    baltable.rows[selectedMinerIndex].cells[3].textContent =
+      roundBTC(minerBalance - fee).toFixed(2);
+    for (let i = 1; i <= MAX_PLAYERS; i++) {
+      const nb = parseFloat(baltable.rows[i].cells[3].textContent);
+      const id = baltable.rows[i].cells[1].textContent;
+      if      (id === from) { baltable.rows[i].cells[3].textContent = roundBTC(nb + qty + fee).toFixed(2); }
+      else if (id === to)   { baltable.rows[i].cells[3].textContent = roundBTC(nb - qty).toFixed(2); }
+    }
+  }
+
+  updateSizeBar();
+  updateBalanceValidation();
+  updateTransactionRowHighlights();
+  saveState();
+}
+
+// fix #4/#5/#9/#11/#16 – guards + robust traversal + JS state
+function minerCheckbox(checkbox) {
+  if (!isInitialized) {
+    alert('Please initialize the game first.');
+    checkbox.checked = false;
+    return;
+  }
+  if (currentBlock > MAX_BLOCKS) {
+    checkbox.checked = false;
+    return;
+  }
+
+  const maintable  = document.getElementById('publicmainnet');
+  const baltable   = document.getElementById('balancetable');
+  // fix #5/#16 – single .closest() call, stored once
+  const rowIdx     = checkbox.closest('tr').rowIndex;
+  const row        = baltable.rows[rowIdx];
+  const newBalance = parseFloat(row.cells[3].textContent);
+  const reward     = parseFloat(document.getElementById('minerReward').value);
+
+  if (checkbox.checked) {
+    // fix #15 – strict equality; fix #9 – JS variable comparison
+    if (selectedMinerIndex === 0 &&
+        rowIdx <= parseInt(document.getElementById('numMiners').value, 10)) {
+      selectedMinerIndex = rowIdx;
+      // fix #11 – roundBTC
+      row.cells[3].textContent = roundBTC(newBalance + reward).toFixed(2);
+      maintable.rows[currentBlock + 1].cells[1].textContent = row.cells[1].textContent;
+      calculateHash();
+    } else {
+      checkbox.checked = false;
+      return;
+    }
+  } else {
+    selectedMinerIndex = 0;
+    row.cells[3].textContent = roundBTC(newBalance - reward).toFixed(2);
+    maintable.rows[currentBlock + 1].cells[1].textContent = '';
+    calculateHash();
+  }
+
+  updateMinerChip();
+  updateSelectedMinerRow();
+  updateBalanceValidation();
+  saveState();
+}
+
+// fix #2/#18 – guard for end-of-game; does NOT call saveState (callers are responsible)
+function calculateHash() {
+  if (currentBlock > MAX_BLOCKS) return;
+  const maintable    = document.getElementById('publicmainnet');
+  const prevHash     = maintable.rows[currentBlock].cells[4].textContent;
+  const blockName    = maintable.rows[currentBlock + 1].cells[0].textContent;
+  const miner        = maintable.rows[currentBlock + 1].cells[1].textContent;
+  const transactions = maintable.rows[currentBlock + 1].cells[2].textContent;
+  const nonceInput   = maintable.rows[currentBlock + 1].cells[3].querySelector("input[type='text']");
+  const nonce        = nonceInput ? nonceInput.value
+                                  : maintable.rows[currentBlock + 1].cells[3].textContent;
+
+  const hash = CryptoJS.MD5(prevHash + blockName + miner + transactions + nonce).toString();
+  maintable.rows[currentBlock + 1].cells[4].textContent = hash;
+  // saveState() intentionally omitted: nonce oninput calls saveState() separately;
+  // all other callers (handleCheckbox, minerCheckbox) call saveState() at their own end.
+}
+
+// fix #1/#8 – end-of-game guard + no-miner-selected guard
+function closeBlock() {
+  if (!isInitialized) {
+    alert('Please initialize the game first.');
+    return;
+  }
+  if (selectedMinerIndex === 0) {
+    alert('No miner selected. Please select the winning miner before closing the block.');
+    return;
+  }
+  if (currentBlock > MAX_BLOCKS) {
+    alert('The game is already over. All ' + MAX_BLOCKS + ' blocks have been mined.');
+    return;
+  }
+
+  const maintable = document.getElementById('publicmainnet');
+  const table     = document.getElementById('transactiontable');
+  const baltable  = document.getElementById('balancetable');
+  const maincell  = maintable.rows[currentBlock + 1].cells[3];
+  const maininput = maincell.querySelector('input[type="text"]');
+
+  // Freeze nonce cell to plain text (setting textContent removes child nodes)
+  maincell.textContent = maininput ? maininput.value : maincell.textContent;
+
+  // Advance block counter and reset re-entrancy flag
+  currentBlock++;
+  blockIsOpen = false;
+
+  // Clear transaction pool
+  for (let i = 1; i <= MAX_TRANSACTIONS; i++) {
+    table.rows[i].cells[1].textContent = '';
+    table.rows[i].cells[2].textContent = '';
+    table.rows[i].cells[3].textContent = '';
+    table.rows[i].cells[4].textContent = '';
+    table.rows[i].cells[5].textContent = '';
+    table.rows[i].cells[6].querySelector('input[type="checkbox"]').checked = false;
+  }
+
+  // Reset block size and miner selection
+  currentBlockSize   = 0;
+  selectedMinerIndex = 0;
+
+  // Promote new balances to current; clear miner checkboxes
+  for (let j = 1; j <= MAX_PLAYERS; j++) {
+    baltable.rows[j].cells[2].textContent = baltable.rows[j].cells[3].textContent;
+    baltable.rows[j].cells[4].querySelector('input[type="checkbox"]').checked = false;
+  }
+
+  refreshAllVisuals();
+  saveState();
+
+  // fix #1 – game-over notification after block 10
+  if (currentBlock > MAX_BLOCKS) {
+    setTimeout(() => {
+      alert('\uD83C\uDFC6 Game Over! All ' + MAX_BLOCKS +
+            ' blocks have been mined. Check the Bitcoin Balance table for final standings.');
+    }, 200);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOOT  (fix #20 – no redundant calls; loadState → refreshAllVisuals handles everything)
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+});
+</script>
+</body>
+</html>

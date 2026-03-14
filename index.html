@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>₿ The Bitcoin Game</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>₿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens ─────────────────────────────────────── */
+    :root {
+      --bg-deep:        #111111;
+      --bg-surface:     #181818;
+      --bg-raised:      #202020;
+      --border-subtle:  #2a2a2a;
+      --border-strong:  #404040;
+      --text-primary:   #f0f0f0;
+      --text-secondary: #999999;
+      --text-muted:     #555555;
+      --gold:           #F7931A;
+      --gold-dim:       rgba(247,147,26,0.15);
+      --gold-glow:      rgba(247,147,26,0.35);
+      --amber:          #f59e0b;
+      --amber-dim:      rgba(245,158,11,0.12);
+      --font-ui:        'Inter', Arial, sans-serif;
+      --radius:         12px;
+      --radius-sm:      8px;
+    }
+
+    /* ── Reset & base ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-deep);
+      background-image: url('BTCbackground.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    /* Dark overlay — light enough to let the background image show through */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body > * { position: relative; z-index: 1; }
+
+    /* ── Page wrapper ──────────────────────────────────────── */
+    .page-wrapper {
+      max-width: 820px;
+      width: 100%;
+      padding: 60px 24px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    /* ── Hero title ────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-symbol {
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--gold);
+      text-shadow: 0 0 40px var(--gold-glow);
+      margin-bottom: 4px;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    /* ── Role cards ────────────────────────────────────────── */
+    .cards-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      width: 100%;
+    }
+
+    .role-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      padding: 32px 24px;
+      background: rgba(15,15,15,0.60);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .role-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 28px var(--gold-glow);
+      background: rgba(25,25,25,0.75);
+    }
+
+    .role-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .role-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .role-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .role-btn {
+      display: inline-block;
+      padding: 10px 28px;
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      margin-top: 4px;
+    }
+
+    .role-card:hover .role-btn {
+      background: var(--gold-dim);
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    /* ── Divider ───────────────────────────────────────────── */
+    .divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ── About section ─────────────────────────────────────── */
+    .about {
+      width: 100%;
+      background: rgba(15,15,15,0.60);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+    }
+
+    .about-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .about p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .about p:last-child { margin-bottom: 0; }
+
+    .about a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .about a:hover { text-decoration: underline; }
+
+
+    /* ── Donate button ─────────────────────────────────────── */
+    .donate-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .donate-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .donate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      background: transparent;
+      color: #009cde;
+      border: 1.5px solid #009cde;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 0.92rem;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .donate-btn:hover {
+      background: rgba(0, 156, 222, 0.12);
+      box-shadow: 0 0 14px rgba(0, 156, 222, 0.3);
+    }
+
+    .donate-btn svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+
+    /* ── How to play strip ─────────────────────────────────── */
+    .how-to-play {
+      width: 100%;
+      background: rgba(15,15,15,0.60);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+    }
+
+    .how-to-play-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .how-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      padding: 16px 12px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+
+    .how-step-icon {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .how-step-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .how-step-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Glossary inside how-to-play */
+    .glossary-toggle {
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .glossary-toggle summary {
+      cursor: pointer;
+      list-style: none;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 6px;
+      transition: color 0.15s;
+    }
+
+    .glossary-toggle summary:hover { color: var(--text-secondary); }
+    .glossary-toggle summary::marker { display: none; }
+
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .glossary-item {
+      padding: 10px 12px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+    }
+
+    .glossary-term {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+
+    .glossary-def {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    @media (max-width: 600px) {
+      .how-steps { grid-template-columns: 1fr; }
+      .glossary-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Footer note ───────────────────────────────────────── */
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-symbol">₿</div>
+    <h1 class="hero-title">The Bitcoin Game</h1>
+    <p class="hero-subtitle">An interactive classroom simulation of blockchain & Proof of Work</p>
+  </div>
+
+  <!-- Role cards -->
+  <div class="cards-row">
+
+    <a href="BTCsatoshi.html" class="role-card">
+      <div class="role-icon">🎓</div>
+      <div class="role-name">Satoshi View</div>
+      <div class="role-desc">For the educator or tutor. Controls the game, manages the transaction pool, validates blocks, and displays the blockchain on the shared screen.</div>
+      <span class="role-btn">Open →</span>
+    </a>
+
+    <a href="BTCminer.html" class="role-card">
+      <div class="role-icon">⛏️</div>
+      <div class="role-name">Miner View</div>
+      <div class="role-desc">For students. Use the Hash Calculator to mine blocks, validate transactions, and compete to maximise your BTC balance.</div>
+      <span class="role-btn">Open →</span>
+    </a>
+
+  </div>
+
+
+  <!-- How to play -->
+  <div class="how-to-play">
+    <div class="how-to-play-title">How to play — the loop in 3 steps</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-icon">⛏️</div>
+        <div class="how-step-title">Mine</div>
+        <div class="how-step-desc">Choose transactions from the pool. Then guess a <strong>Nonce</strong> — any text — and click <strong>Calculate Hash</strong>. Keep changing it until the hash ends in the required character.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-icon">📢</div>
+        <div class="how-step-title">Shout "BITCOIN!"</div>
+        <div class="how-step-desc">First miner to find a valid hash shouts <strong>"BITCOIN!"</strong>. Everyone stops and the class verifies the block together. If valid, that miner wins the reward.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-icon">₿</div>
+        <div class="how-step-title">Earn & Repeat</div>
+        <div class="how-step-desc">The winning miner collects the <strong>block reward</strong> + all transaction <strong>fees</strong>. A new block opens and the race begins again. Most BTC after 10 blocks wins.</div>
+      </div>
+    </div>
+
+    <!-- Mini glossary -->
+    <details class="glossary-toggle">
+      <summary>▾ Key terms glossary (click to expand)</summary>
+      <div class="glossary-grid">
+        <div class="glossary-item">
+          <div class="glossary-term">Hash</div>
+          <div class="glossary-def">A fixed-length fingerprint of data. The same inputs always produce the same hash. Change one character and the hash changes completely.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Nonce</div>
+          <div class="glossary-def">A number or text you add to the block data and change repeatedly until the resulting hash meets the difficulty condition.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Difficulty</div>
+          <div class="glossary-def">The condition a hash must meet to be valid — e.g. "must end in 9". Only about 1 in 16 hashes will qualify, so miners must try many nonces.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Consensus</div>
+          <div class="glossary-def">All miners agree a block is valid by independently reproducing the same hash with the same inputs. No trust required — the math proves it.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Block Reward</div>
+          <div class="glossary-def">New BTC created and awarded to the miner who successfully mines a block. This is how new Bitcoin enters circulation in real life.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="glossary-term">Transaction Fee</div>
+          <div class="glossary-def">A small amount paid by the sender of a transaction. The miner who includes it in their block collects it — incentivising miners to process transactions.</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <hr class="divider">
+
+  <!-- About -->
+  <div class="about">
+    <div class="about-title">About The Bitcoin Game</div>
+    <p>The Bitcoin Game is an interactive educational tool designed to teach the fundamentals of blockchain technology, cryptocurrency mining, and the Proof of Work consensus mechanism in an engaging, hands-on way. Players experience mining blocks, reaching consensus, and managing transactions in a simulated Bitcoin-like environment.</p>
+    <p>Developed by Guillermo A. Beuchat <a href="https://www.linkedin.com/in/guillebeuchat/" target="_blank">(LinkedIn profile)</a> — Business Consultant, Startup Founder, University Professor, and Blockchain enthusiast. Copyright free.</p>
+  </div>
+
+
+  <!-- Donate -->
+  <div class="donate-wrap">
+    <p class="donate-label">If this tool was useful for your class, you can support its development ☕</p>
+    <a href="https://paypal.me/guillebeuchat" target="_blank" rel="noopener noreferrer" class="donate-btn">
+      <!-- PayPal logo mark (official SVG path, single colour) -->
+      <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/>
+      </svg>
+      Donate via PayPal
+    </a>
+  </div>
+
+  <p class="footer-note">Best experienced on a desktop browser &nbsp;·&nbsp; Each player opens Miner View on their own device &nbsp;·&nbsp; Satoshi View is projected or screen-shared</p>
+
+</div>
+</body>
+</html>
