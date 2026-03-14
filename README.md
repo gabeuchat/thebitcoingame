@@ -18,7 +18,7 @@ No installation. No accounts. No backend. Opens in any browser in seconds.
 
 Most blockchain courses teach Proof of Work through slides and diagrams. Students understand it intellectually but never *feel* it. This game was built to close that gap — to make the mechanism visceral, competitive, and socially experienced so the understanding sticks.
 
-Built by **Guillermo A. Beuchat**, Professor at Universidad de Chile, Business Consultant, and Blockchain enthusiast.
+Built by **Guillermo A. Beuchat**, University Professor, Business Consultant, and Blockchain enthusiast.
 
 ---
 
@@ -161,7 +161,7 @@ If this tool was useful for your course, you can support its continued developme
 ## Author
 
 **Guillermo A. Beuchat**
-Business Consultant · Startup Founder · Professor at Universidad de Chile · Blockchain Enthusiast
+Business Consultant · Startup Founder · University Professor · Blockchain Enthusiast
 
 [LinkedIn](https://www.linkedin.com/in/guillebeuchat/) · [thebitcoingame.io](https://thebitcoingame.io)
 
